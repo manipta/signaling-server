@@ -2,7 +2,7 @@
   "name": "signaling-server",
   "type": "module",
   "scripts": {
-    "start": "node index.js"
+    "start": "node signaling-server.mjs"
   },
   "dependencies": {
     "ws": "^8"
