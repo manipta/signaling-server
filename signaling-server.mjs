@@ -274,8 +274,8 @@ wss.on('connection', (ws) => {
       if (!room) return;
       if (room.status !== 'waiting') return;
       
-      const player = room.players.find((p) => p.socketId === socketId);
-      if (!player) return;
+      const host = room.players.find((p) => p.id === 'host');
+      if (!host || host.socketId !== socketId) return;
 
       room.prompt = randomPrompt();
       broadcast(room, {
