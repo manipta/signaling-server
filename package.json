@@ -1,0 +1,10 @@
+{
+  "name": "signaling-server",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "ws": "^8"
+  }
+}
