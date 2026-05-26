@@ -5,11 +5,80 @@ const ROOM_TTL_MS = 10 * 60 * 1000;
 const DEFAULT_DURATION_SECONDS = 60;
 
 const prompts = [
-  'Draw a house',
-  'Draw a robot',
-  'Draw a dragon',
-  'Draw your dream room',
-  'Draw a flying car',
+  'Draw a melting ice cream cone',
+  'Draw a slice of pizza',
+  'Draw a cute sleeping cat',
+  'Draw an alien spaceship',
+  'Draw a pirate flag',
+  'Draw a snowman with a top hat',
+  'Draw a cup of hot coffee',
+  'Draw a funny robot',
+  'Draw a treasure chest',
+  'Draw a flying kite',
+  'Draw a magical wand',
+  'Draw a fast sports car',
+  'Draw a giant hamburger',
+  'Draw a spooky ghost',
+  'Draw a palm tree on an island',
+  'Draw a hot air balloon',
+  'Draw a cute puppy',
+  'Draw a pair of sunglasses',
+  'Draw a rocket blasting off',
+  'Draw a birthday cake with candles',
+  'Draw a friendly dinosaur',
+  'Draw a pair of headphones',
+  'Draw a floating balloon',
+  'Draw a skateboard',
+  'Draw a magic potion bottle',
+  'Draw a sunny beach umbrella',
+  'Draw an old fashioned camera',
+  'Draw a telescope pointing at stars',
+  'Draw a spooky pumpkin',
+  'Draw a guitar',
+  'Draw a paper airplane',
+  'Draw a crown with jewels',
+  'Draw a campfire',
+  'Draw a superhero cape',
+  'Draw a colorful rainbow',
+  'Draw a fluffy cloud with rain',
+  'Draw a slice of watermelon',
+  'Draw a pair of scissors',
+  'Draw a coffee mug',
+  'Draw a wrapped gift box',
+  'Draw a pair of winter mittens',
+  'Draw a ringing alarm clock',
+  'Draw a simple bicycle',
+  'Draw a smiling sun',
+  'Draw a crescent moon and stars',
+  'Draw a juicy apple',
+  'Draw a simple sailboat',
+  'Draw a potted plant',
+  'Draw a lit candle',
+  'Draw a pair of reading glasses',
+  'Draw a classic wristwatch',
+  'Draw a mushroom',
+  'Draw a pair of socks',
+  'Draw a simple house key',
+  'Draw a lightbulb',
+  'Draw a classic telephone',
+  'Draw a slice of cheese',
+  'Draw a pencil and eraser',
+  'Draw a simple pine tree',
+  'Draw an open book',
+  'Draw a football',
+  'Draw a basketball',
+  'Draw a tennis racket',
+  'Draw a baseball cap',
+  'Draw a simple snowflake',
+  'Draw a buzzing bee',
+  'Draw a ladybug',
+  'Draw a cute turtle',
+  'Draw a magic 8-ball',
+  'Draw a bowtie',
+  'Draw a slice of toast',
+  'Draw a simple padlock',
+  'Draw a ringing bell',
+  'Draw a classic envelope'
 ];
 
 const wss = new WebSocketServer({ port: PORT });
@@ -196,6 +265,22 @@ wss.on('connection', (ws) => {
         type: 'signal',
         from: message.from,
         signal: message.signal,
+      });
+      return;
+    }
+
+    if (message.type === 'change-prompt') {
+      const room = rooms.get(message.roomId);
+      if (!room) return;
+      if (room.status !== 'waiting') return;
+      
+      const player = room.players.find((p) => p.socketId === socketId);
+      if (!player) return;
+
+      room.prompt = randomPrompt();
+      broadcast(room, {
+        type: 'room-updated',
+        room: publicRoom(room),
       });
       return;
     }
