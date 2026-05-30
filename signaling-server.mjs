@@ -1,3 +1,4 @@
+import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 
 const PORT = process.env.SIGNAL_PORT ? Number(process.env.SIGNAL_PORT) : 8787;
@@ -547,7 +548,17 @@ const prompts = [
   'Draw a flag on a pole'
 ];
 
-const wss = new WebSocketServer({ port: PORT });
+const server = createServer((req, res) => {
+  if (req.url === '/' || req.url === '/health') {
+    res.writeHead(200, { 'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
+    res.end('OK');
+    return;
+  }
+  res.writeHead(404);
+  res.end();
+});
+
+const wss = new WebSocketServer({ server });
 const rooms = new Map();
 const sockets = new Map();
 
@@ -601,6 +612,11 @@ function startGame(room) {
   room.status = 'active';
   room.startAt = Date.now();
 
+  if (room.expireTimeout) {
+    clearTimeout(room.expireTimeout);
+    room.expireTimeout = null;
+  }
+
   broadcast(room, {
     type: 'game-started',
     room: publicRoom(room),
@@ -644,6 +660,11 @@ wss.on('connection', (ws) => {
       message = JSON.parse(raw.toString());
     } catch {
       send(ws, { type: 'error', error: 'Invalid JSON message' });
+      return;
+    }
+
+    if (message.type === 'ping') {
+      send(ws, { type: 'pong' });
       return;
     }
 
@@ -773,4 +794,6 @@ wss.on('connection', (ws) => {
   });
 });
 
-console.log(`Signaling server listening on ws://localhost:${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Signaling server listening on port ${PORT} (WS + HTTP)`);
+});
